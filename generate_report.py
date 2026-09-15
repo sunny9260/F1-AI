@@ -121,50 +121,50 @@ Keep the tone professional, precise, and focused on actionable insights. Avoid f
     return prompt
 
 
-def generate_claude_report(prompt: str, api_key: Optional[str] = None) -> str:
+def generate_huggingface_report(prompt: str, api_key: Optional[str] = None, model: str = "mistralai/Mistral-7B-Instruct-v0.2") -> str:
     """
-    Generate report using Claude API.
+    Generate report using Hugging Face Inference API.
     
     Args:
-        prompt: The formatted prompt for Claude
-        api_key: Optional Anthropic API key (if None, will try to get from environment)
+        prompt: The formatted prompt for the AI model
+        api_key: Optional Hugging Face API key (if None, will try to get from environment)
+        model: Hugging Face model to use
     
     Returns:
         Generated report text
     """
     try:
-        import anthropic
+        from huggingface_hub import InferenceClient
     except ImportError:
-        print("Error: anthropic package not installed. Install with: pip install anthropic")
+        print("Error: huggingface_hub package not installed. Install with: pip install huggingface_hub")
         return None
     
     # Get API key from parameter or environment
     if api_key is None:
-        api_key = os.environ.get('ANTHROPIC_API_KEY')
+        api_key = os.environ.get('HUGGINGFACE_API_KEY')
     
     if not api_key:
-        print("Warning: ANTHROPIC_API_KEY not found. Generating sample report without AI...")
+        print("Warning: HUGGINGFACE_API_KEY not found. Generating sample report without AI...")
         return generate_sample_report(prompt)
     
     try:
-        client = anthropic.Anthropic(api_key=api_key)
+        client = InferenceClient(token=api_key)
         
-        message = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
-            max_tokens=4096,
-            temperature=0.3,  # Lower temperature for more focused, technical responses
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
+        # Format prompt for Mistral model
+        formatted_prompt = f"<s>[INST] {prompt} [/INST]"
+        
+        response = client.text_generation(
+            formatted_prompt,
+            model=model,
+            max_new_tokens=4096,
+            temperature=0.3,
+            do_sample=True,
         )
         
-        return message.content[0].text
+        return response
     
     except Exception as e:
-        print(f"Error calling Claude API: {e}")
+        print(f"Error calling Hugging Face API: {e}")
         print("Generating sample report without AI...")
         return generate_sample_report(prompt)
 
@@ -176,7 +176,7 @@ def generate_sample_report(prompt: str) -> str:
     """
     return """# F1 Performance Report - Sample
 
-**Note**: This is a sample report generated without AI analysis. To get detailed AI-powered insights, set up your Anthropic API key.
+**Note**: This is a sample report generated without AI analysis. To get detailed AI-powered insights, set up your Hugging Face API key.
 
 ## Session Summary
 This sample report demonstrates the structure of the AI-generated performance analysis. The actual AI report would provide detailed insights based on the corner analysis and consistency data.
@@ -202,7 +202,7 @@ If consistency data is available, the AI would highlight lap-to-lap variability 
 
 ---
 
-**To enable AI-powered reports**: Set your ANTHROPIC_API_KEY environment variable or pass it as --api_key parameter when running the report command."""
+**To enable AI-powered reports**: Set your HUGGINGFACE_API_KEY environment variable or pass it as --api_key parameter when running the report command."""
 
 
 def save_report(report: str, output_path: str) -> None:
@@ -220,7 +220,8 @@ def main():
     parser.add_argument("--gp", type=str, required=True, help="Grand Prix name (e.g., Monza)")
     parser.add_argument("--year", type=int, required=True, help="Year of the session")
     parser.add_argument("--output", type=str, default="reports/performance_report.md", help="Output report path")
-    parser.add_argument("--api_key", type=str, help="Anthropic API key (or set ANTHROPIC_API_KEY env var)")
+    parser.add_argument("--api_key", type=str, help="Hugging Face API key (or set HUGGINGFACE_API_KEY env var)")
+    parser.add_argument("--model", type=str, default="mistralai/Mistral-7B-Instruct-v0.2", help="Hugging Face model to use")
     args = parser.parse_args()
     
     # Load data
@@ -240,7 +241,7 @@ def main():
     
     # Generate report
     print("Generating performance report...")
-    report = generate_claude_report(prompt, args.api_key)
+    report = generate_huggingface_report(prompt, args.api_key)
     
     if report:
         # Create output directory if needed

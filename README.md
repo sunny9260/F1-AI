@@ -106,15 +106,20 @@ f1-ai-performance-coach/
 
 ### API Key Setup
 
-Set your Anthropic API key for AI report generation:
+Set your Hugging Face API key for AI report generation:
 
 ```bash
-# Set as environment variable
-export ANTHROPIC_API_KEY=your_api_key_here
+# Set as environment variable (Linux/Mac)
+export HUGGINGFACE_API_KEY=your_api_key_here
+
+# Set as environment variable (Windows)
+set HUGGINGFACE_API_KEY=your_api_key_here
 
 # Or pass it directly
 python f1_coach.py report --api_key your_api_key_here ...
 ```
+
+Get your free API key from: https://huggingface.co/settings/tokens
 
 ### Session Types
 

@@ -272,7 +272,7 @@ Examples:
     complete_parser.add_argument('--session', type=str, default='R', help='Session type (FP1/FP2/FP3/Q/R/S)')
     complete_parser.add_argument('--driver', type=str, required=True, help='Driver code (e.g., VER)')
     complete_parser.add_argument('--reference', type=str, required=True, help='Reference driver code for comparison')
-    complete_parser.add_argument('--api_key', type=str, help='Anthropic API key for report generation')
+    complete_parser.add_argument('--api_key', type=str, help='Hugging Face API key for report generation')
     
     # Pipeline command
     pipeline_parser = subparsers.add_parser('pipeline', help='Run data pipeline only')
@@ -305,7 +305,7 @@ Examples:
     report_parser.add_argument('--gp', type=str, required=True, help='Grand Prix name')
     report_parser.add_argument('--year', type=int, required=True, help='Year')
     report_parser.add_argument('--output', type=str, default='reports/performance_report.md', help='Output path')
-    report_parser.add_argument('--api_key', type=str, help='Anthropic API key')
+    report_parser.add_argument('--api_key', type=str, help='Hugging Face API key')
     
     args = parser.parse_args()
     
